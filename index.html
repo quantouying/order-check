@@ -5,43 +5,46 @@
     <title>订单查询中心</title>
     <style>
         body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding-top: 50px; }
-        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 400px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 6px; cursor: pointer; }
-        #result { margin-top: 20px; text-align: left; background: #f8f9fa; padding: 15px; border-radius: 8px; white-space: pre-wrap; font-size: 14px; min-height: 50px; border: 1px solid #eee; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 450px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        button:hover { background: #1557b0; }
+        #result { margin-top: 20px; text-align: left; background: #f8f9fa; padding: 15px; border-radius: 8px; white-space: pre-wrap; font-size: 14px; min-height: 50px; border: 1px solid #eee; color: #333; line-height: 1.6; }
     </style>
 </head>
 <body>
     <div class="card">
         <h2>订单查询</h2>
-        <input type="text" id="kw" placeholder="请输入订单号或CDK">
-        <button onclick="doSearch()">立即查询</button>
+        <input type="text" id="kw" placeholder="请输入订单号或关键字">
+        <button onclick="doSearch()">开始查询</button>
         <div id="result">等待查询...</div>
     </div>
 
     <script>
         async function doSearch() {
-            const kw = document.getElementById('kw').value;
+            const kw = document.getElementById('kw').value.trim();
             const resDiv = document.getElementById('result');
-            if(!kw) return alert('请输入内容');
+            if(!kw) return alert('请输入查询内容');
             
-            resDiv.innerHTML = "正在连接服务器并获取数据...";
+            resDiv.innerHTML = "正在连接服务器，请稍候...";
             
-            // 确保这里是 https 且域名正确
+            // 确保这里是你的真实 cpolar 地址
             const apiUrl = 'https://myagiso.vip.cpolar.cn/?key=' + encodeURIComponent(kw);
 
             try {
                 const response = await fetch(apiUrl);
-                // 解决易语言 GBK 乱码的核心代码
+                if (!response.ok) throw new Error('服务器响应异常');
+
+                // 核心：处理易语言的 GBK 编码，解决中文乱码和转圈问题
                 const buffer = await response.arrayBuffer();
                 const decoder = new TextDecoder('gbk');
                 const text = decoder.decode(buffer);
                 
-                console.log("收到数据内容：", text);
-                resDiv.innerHTML = text || "未查询到记录。";
+                // 将结果显示到网页，并处理换行
+                resDiv.innerHTML = text || "未查到相关记录。";
             } catch (error) {
-                console.error("详细错误信息：", error);
-                resDiv.innerHTML = "查询出错！请确保易语言程序已开启且 cpolar 正常。<br>错误详情：" + error.message;
+                console.error("错误:", error);
+                resDiv.innerHTML = "查询失败：请确保易语言程序已开启，且 cpolar 隧道在线。<br>错误原因：" + error.message;
             }
         }
     </script>

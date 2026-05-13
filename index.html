@@ -35,10 +35,19 @@
             const apiUrl = 'https://myagiso.vip.cpolar.cn/?key=' + encodeURIComponent(val);
 
             fetch(apiUrl)
-                .then(response => response.text())
-                .then(data => {
-                    resDiv.innerHTML = data || "未找到匹配记录";
-                })
+   fetch(apiUrl)
+    .then(response => response.arrayBuffer()) // 先获取原始字节
+    .then(buffer => {
+        // 使用 GBK 解码（因为易语言默认发的是 GBK）
+        const decoder = new TextDecoder('gbk');
+        const data = decoder.decode(buffer);
+        console.log("收到数据：", data); // 调试用
+        document.getElementById('result').innerHTML = data || "未找到匹配记录";
+    })
+    .catch(error => {
+        console.error("错误详情：", error);
+        document.getElementById('result').innerHTML = "查询失败，请检查服务器连接。";
+    });
                 .catch(error => {
                     resDiv.innerHTML = "查询失败：请确保您的易语言程序已开启且 cpolar 隧道正常。";
                 });

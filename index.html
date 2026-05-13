@@ -32,7 +32,7 @@
             resDiv.innerHTML = "正在连接本地服务器...";
             
             // 重要：将此处替换为你 cpolar 的公网地址
-            const apiUrl = 'http://myagiso.vip.cpolar.cn/?key=' + encodeURIComponent(val);
+            const apiUrl = 'https://myagiso.vip.cpolar.cn/?key=' + encodeURIComponent(val);
 
             fetch(apiUrl)
                 .then(response => response.text())

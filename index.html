@@ -2,55 +2,47 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>订单在线查询系统</title>
+    <title>订单查询中心</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        h2 { color: #1a73e8; margin-bottom: 25px; }
-        input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; transition: border-color 0.3s; box-sizing: border-box; }
-        input:focus { border-color: #1a73e8; outline: none; }
-        button { width: 100%; background-color: #1a73e8; color: white; padding: 12px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 15px; transition: background 0.3s; }
-        button:hover { background-color: #1557b0; }
-        #result { margin-top: 25px; text-align: left; background: #f8f9fa; padding: 15px; border-radius: 8px; min-height: 50px; font-size: 14px; white-space: pre-wrap; word-break: break-all; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding-top: 50px; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 400px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 6px; cursor: pointer; }
+        #result { margin-top: 20px; text-align: left; background: #f8f9fa; padding: 15px; border-radius: 8px; white-space: pre-wrap; font-size: 14px; min-height: 50px; border: 1px solid #eee; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>订单查询中心</h2>
-        <input type="text" id="orderInput" placeholder="请输入订单号或CDK">
-        <button onclick="search()">立即查询</button>
-        <div id="result">请输入单号点击查询...</div>
+    <div class="card">
+        <h2>订单查询</h2>
+        <input type="text" id="kw" placeholder="请输入订单号或CDK">
+        <button onclick="doSearch()">立即查询</button>
+        <div id="result">等待查询...</div>
     </div>
 
     <script>
-        function search() {
-            const val = document.getElementById('orderInput').value;
+        async function doSearch() {
+            const kw = document.getElementById('kw').value;
             const resDiv = document.getElementById('result');
-            if(!val) return alert('请输入内容');
+            if(!kw) return alert('请输入内容');
             
-            resDiv.innerHTML = "正在连接本地服务器...";
+            resDiv.innerHTML = "正在连接服务器并获取数据...";
             
-            // 重要：将此处替换为你 cpolar 的公网地址
-            const apiUrl = 'https://myagiso.vip.cpolar.cn/?key=' + encodeURIComponent(val);
+            // 确保这里是 https 且域名正确
+            const apiUrl = 'https://myagiso.vip.cpolar.cn/?key=' + encodeURIComponent(kw);
 
-            fetch(apiUrl)
-   fetch(apiUrl)
-    .then(response => response.arrayBuffer()) // 先获取原始字节
-    .then(buffer => {
-        // 使用 GBK 解码（因为易语言默认发的是 GBK）
-        const decoder = new TextDecoder('gbk');
-        const data = decoder.decode(buffer);
-        console.log("收到数据：", data); // 调试用
-        document.getElementById('result').innerHTML = data || "未找到匹配记录";
-    })
-    .catch(error => {
-        console.error("错误详情：", error);
-        document.getElementById('result').innerHTML = "查询失败，请检查服务器连接。";
-    });
-                .catch(error => {
-                    resDiv.innerHTML = "查询失败：请确保您的易语言程序已开启且 cpolar 隧道正常。";
-                });
+            try {
+                const response = await fetch(apiUrl);
+                // 解决易语言 GBK 乱码的核心代码
+                const buffer = await response.arrayBuffer();
+                const decoder = new TextDecoder('gbk');
+                const text = decoder.decode(buffer);
+                
+                console.log("收到数据内容：", text);
+                resDiv.innerHTML = text || "未查询到记录。";
+            } catch (error) {
+                console.error("详细错误信息：", error);
+                resDiv.innerHTML = "查询出错！请确保易语言程序已开启且 cpolar 正常。<br>错误详情：" + error.message;
+            }
         }
     </script>
 </body>

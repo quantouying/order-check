@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单在线查询系统</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        h2 { color: #1a73e8; margin-bottom: 25px; }
+        input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; transition: border-color 0.3s; box-sizing: border-box; }
+        input:focus { border-color: #1a73e8; outline: none; }
+        button { width: 100%; background-color: #1a73e8; color: white; padding: 12px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 15px; transition: background 0.3s; }
+        button:hover { background-color: #1557b0; }
+        #result { margin-top: 25px; text-align: left; background: #f8f9fa; padding: 15px; border-radius: 8px; min-height: 50px; font-size: 14px; white-space: pre-wrap; word-break: break-all; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>订单查询中心</h2>
+        <input type="text" id="orderInput" placeholder="请输入订单号或CDK">
+        <button onclick="search()">立即查询</button>
+        <div id="result">请输入单号点击查询...</div>
+    </div>
+
+    <script>
+        function search() {
+            const val = document.getElementById('orderInput').value;
+            const resDiv = document.getElementById('result');
+            if(!val) return alert('请输入内容');
+            
+            resDiv.innerHTML = "正在连接本地服务器...";
+            
+            // 重要：将此处替换为你 cpolar 的公网地址
+            const apiUrl = 'http://myagiso.vip.cpolar.cn/?key=' + encodeURIComponent(val);
+
+            fetch(apiUrl)
+                .then(response => response.text())
+                .then(data => {
+                    resDiv.innerHTML = data || "未找到匹配记录";
+                })
+                .catch(error => {
+                    resDiv.innerHTML = "查询失败：请确保您的易语言程序已开启且 cpolar 隧道正常。";
+                });
+        }
+    </script>
+</body>
+</html>
